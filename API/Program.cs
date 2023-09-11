@@ -14,15 +14,19 @@ builder.Services.AddDbContext<DataContext>(opt =>
 {
     opt.UseSqlite(builder.Configuration["ConnectionString:DefaultConnection"]);
 });
-
+// adding CORS support in the API, because angular can access the server.(policy builder)
+builder.Services.AddCors();
 
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.UseHttpsRedirection();
+// help this origins route access to the data from this API
+app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200"));
 
-app.UseAuthorization();
+// app.UseHttpsRedirection();
+
+// app.UseAuthorization();
 
 app.MapControllers();
 
