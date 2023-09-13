@@ -2,20 +2,19 @@
 // dotnet tool install --global dotnet-ef --version 7.0.10 -> to use migration
 // dotnet ef migrations add InitialCreate -o Data/Migrations -> to create a first migration
 
-using API.Data;
-using Microsoft.EntityFrameworkCore;
+using API.Extentions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<DataContext>(opt => 
-{
-    opt.UseSqlite(builder.Configuration["ConnectionString:DefaultConnection"]);
-});
-// adding CORS support in the API, because angular can access the server.(policy builder)
-builder.Services.AddCors();
+
+// Move some service into the extension method
+// in extension method: AddApplicationServices
+builder.Services.AddApplicationServices(builder.Configuration);
+// in extension method: AddIdentityServices
+builder.Services.AddIdentityServices(builder.Configuration);
 
 
 var app = builder.Build();
@@ -24,9 +23,11 @@ var app = builder.Build();
 // help this origins route access to the data from this API
 app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200"));
 
-// app.UseHttpsRedirection();
+// ask the user: Do you have a valid token? / Who are you?
+app.UseAuthentication(); // it should add bwt UseCors(), MapController()
 
-// app.UseAuthorization();
+// ask the user have a valid token => Now what are you allowed to do?
+app.UseAuthorization();
 
 app.MapControllers();
 
