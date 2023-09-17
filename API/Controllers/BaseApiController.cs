@@ -17,6 +17,8 @@ namespace API.Controllers
     //HEADER: Algorithm & token type
     //PAYLOAD: Data (such as id, username, roles the user, expired, iat-issued at ...)
     //VERIFY SIGNATURE - chữ kí xác minh
+    //=> Signature help we dont need to call database to check the token is valid
+    //Because API server is going to verify that it's a valid token based on a Signature
 
     // use BaseApiController to help the project -> DRY 
     //-> reduce the repeatation, use inheritance that will declare and add all attribute are necessary

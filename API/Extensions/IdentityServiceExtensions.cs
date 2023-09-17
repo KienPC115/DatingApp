@@ -16,8 +16,10 @@ public static class IdentityServiceExtensions
                 option.TokenValidationParameters = new TokenValidationParameters
                 {
                     // our server will check the token signing key => ensure it is valid
+                    // kí vào token
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"])),
+                    // tự cấp token
                     ValidateIssuer = false,
                     ValidateAudience = false,
                 };

@@ -21,9 +21,12 @@ public class TokenService : ITokenService
 
     public string CreateToken(AppUser user)
     {
+        //setup claim - đặc trưng của người dùng
         var claims = new List<Claim>
         {
+            // dạng type: value cho mỗi claim
             new Claim(JwtRegisteredClaimNames.NameId, user.UserName)
+            // roles
         };
 
         var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
