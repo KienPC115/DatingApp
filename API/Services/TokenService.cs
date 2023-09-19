@@ -12,7 +12,7 @@ public class TokenService : ITokenService
     // we will store the super secret key in Configuration => will be injected by constructor
     private readonly SymmetricSecurityKey _key;
 
-    // Because the configuration is the Implicit Object in the webapplication, so it will auto inject it to this constructer
+    // Because the configuration is the Implicit Object in the webapplication, so it will auto inject it to this constructor
     // => so that why dont need to add it to ServiceCollection
     public TokenService(IConfiguration config)
     {
