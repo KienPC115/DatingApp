@@ -3,6 +3,7 @@
 // dotnet ef migrations add InitialCreate -o Data/Migrations -> to create a first migration
 
 using API.Extentions;
+using API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,10 @@ builder.Services.AddIdentityServices(builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+// use middleware ExceptionMiddleware catch the exception occur in our application
+app.UseMiddleware<ExceptionMiddleware>();
+
 // help this origins route access to the data from this API
 app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200"));
 
