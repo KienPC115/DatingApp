@@ -2,8 +2,10 @@
 // dotnet tool install --global dotnet-ef --version 7.0.10 -> to use migration
 // dotnet ef migrations add InitialCreate -o Data/Migrations -> to create a first migration
 
+using API.Data;
 using API.Extentions;
 using API.Middleware;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,5 +37,22 @@ app.UseAuthentication(); // it should add bwt UseCors(), MapController()
 app.UseAuthorization();
 
 app.MapControllers();
+
+// IServiceScope -> IServiceProvider
+// give us access to all of the services that we have inside this program class
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+try
+{
+    var context = services.GetRequiredService<DataContext>();
+    // apply any pending migrations (pending mode) for the context to db, will create db if it does not exist.
+    await context.Database.MigrateAsync();
+    await Seed.SeedUsers(context);
+}
+catch (Exception ex)
+{
+    var logger = services.GetService<ILogger<Program>>();
+    logger.LogError(ex,"An error occured during migrations");
+}
 
 app.Run();
