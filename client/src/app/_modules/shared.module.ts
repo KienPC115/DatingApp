@@ -4,10 +4,12 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ToastrModule } from 'ngx-toastr';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { positionElements } from 'ngx-bootstrap/positioning';
+import { NgxSpinner, NgxSpinnerModule } from 'ngx-spinner';
 
 // ng g module _modules/shared --flat to create a new module for angular project
 // is place to import the third party module and export it here as well => to clear a stucture
 
+// npm add ngx-spinner@16 -> add the spinner for app represent the loading
 @NgModule({
   declarations: [],
   imports: [
@@ -17,11 +19,15 @@ import { positionElements } from 'ngx-bootstrap/positioning';
     ToastrModule.forRoot({
       positionClass: 'toast-bottom-right'
     }), // ToastrModule added
+    NgxSpinnerModule.forRoot({
+      type: 'line-scale-party'
+    }) // add the spinner
   ],
   exports: [
     BsDropdownModule,
     ToastrModule,
-    TabsModule
+    TabsModule,
+    NgxSpinnerModule
   ]
 })
 export class SharedModule { }
