@@ -28,9 +28,7 @@ export class AccountService {
       map((response: User ) => {
         const user = response;
         if(user) {
-          // to store inside local storage
-          localStorage.setItem('user', JSON.stringify(user)) // we should have access to that anywhere from our application
-          this.currentUserSource.next(user);  // what its next value is and pass in that user
+          this.setCurrentUser(user);
         }
       })
     );
@@ -40,15 +38,16 @@ export class AccountService {
     return this.http.post<User>(this.baseUrl+'account/register',model).pipe(
       map(user => {
         if(user) {
-          localStorage.setItem('user', JSON.stringify(user)),
-          this.currentUserSource.next(user)
+          this.setCurrentUser(user);
         }
       })
     )
   }
 
   setCurrentUser(user : User) {
-    this.currentUserSource.next(user);
+    // to store inside local storage
+    localStorage.setItem('user', JSON.stringify(user)) // we should have access to that anywhere from our application
+    this.currentUserSource.next(user);  // what its next value is and pass in that user
   }
 
   logout() {

@@ -1,4 +1,5 @@
 using API.Data;
+using API.Helper;
 using API.Interfaces;
 using API.Services;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,10 @@ public static class ApplicationServiceExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         // add AutoMapper implement class for application
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        // add the IOption CloudinarySettings base on which being setup in appsettings.json
+        services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
+        // add IPhotoService to help us upload/delete photo in Cloud
+        services.AddScoped<IPhotoService,PhotoService>();
 
         return services;
     }

@@ -5,6 +5,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { positionElements } from 'ngx-bootstrap/positioning';
 import { NgxSpinner, NgxSpinnerModule } from 'ngx-spinner';
+import { FileUploadModule } from 'ng2-file-upload';
 
 // ng g module _modules/shared --flat to create a new module for angular project
 // is place to import the third party module and export it here as well => to clear a stucture
@@ -21,13 +22,15 @@ import { NgxSpinner, NgxSpinnerModule } from 'ngx-spinner';
     }), // ToastrModule added
     NgxSpinnerModule.forRoot({
       type: 'line-scale-party'
-    }) // add the spinner
+    }), // add the spinner
+    FileUploadModule
   ],
   exports: [
     BsDropdownModule,
     ToastrModule,
     TabsModule,
-    NgxSpinnerModule
+    NgxSpinnerModule,
+    FileUploadModule
   ]
 })
 export class SharedModule { }
