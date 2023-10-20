@@ -7,6 +7,9 @@ import { positionElements } from 'ngx-bootstrap/positioning';
 import { NgxSpinner, NgxSpinnerModule } from 'ngx-spinner';
 import { FileUploadModule } from 'ng2-file-upload';
 import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { ButtonsModule } from 'ngx-bootstrap/buttons';
+import { TimeagoModule } from 'ngx-timeago';
 
 
 // ng g module _modules/shared --flat to create a new module for angular project
@@ -27,6 +30,9 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
     }), // add the spinner
     FileUploadModule,
     BsDatepickerModule.forRoot(),
+    PaginationModule.forRoot(),
+    ButtonsModule.forRoot(),
+    TimeagoModule.forRoot() // npm install ngx-timeago
   ],
   exports: [
     BsDropdownModule,
@@ -34,7 +40,10 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
     TabsModule,
     NgxSpinnerModule,
     FileUploadModule,
-    BsDatepickerModule
+    BsDatepickerModule,
+    PaginationModule,
+    ButtonsModule,
+    TimeagoModule
   ]
 })
 export class SharedModule { }

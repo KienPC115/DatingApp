@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { GalleryItem, GalleryModule, ImageItem } from 'ng-gallery';
+import { TimeagoModule } from 'ngx-timeago';
 
 // npm i ng-gallery @angular/cdk -> to use galleryModule
 // -> integrate 3rd party component into application
@@ -13,7 +14,7 @@ import { GalleryItem, GalleryModule, ImageItem } from 'ng-gallery';
   standalone: true, // be come a standalone component -> it can flexibility in order to use the module they want -> ex: here we use the GalleryModule to manage to the photos of each user
   templateUrl: './member-detail.component.html',
   styleUrls: ['./member-detail.component.css'],
-  imports: [CommonModule, TabsModule, GalleryModule]
+  imports: [CommonModule, TabsModule, GalleryModule, TimeagoModule]
 })
 export class MemberDetailComponent implements OnInit{
 

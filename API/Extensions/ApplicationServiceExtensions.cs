@@ -29,6 +29,8 @@ public static class ApplicationServiceExtensions
         services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
         // add IPhotoService to help us upload/delete photo in Cloud
         services.AddScoped<IPhotoService,PhotoService>();
+        // the LogUserActivity it will change the lastActive property of User
+        services.AddScoped<LogUserActivity>();        
 
         return services;
     }

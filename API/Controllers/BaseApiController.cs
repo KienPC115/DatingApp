@@ -1,3 +1,4 @@
+using API.Helper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -25,6 +26,7 @@ namespace API.Controllers
     
     // ApiController can automatically bind to our parameters inside code
     // ApiController -> can help validation data before it get this data to controller.(Use Annotation on the Dto)
+    [ServiceFilter(typeof(LogUserActivity))]
     [ApiController] 
     [Route("api/[controller]")]
     public class BaseApiController : ControllerBase
