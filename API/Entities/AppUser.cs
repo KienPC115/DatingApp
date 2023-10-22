@@ -36,9 +36,7 @@ public class AppUser
 
     public List<Photo> Photos { get; set;} = new();
 
-    // public int GetAge(){
-    //     // on the MemberDto has a property Age.
-    //     // AutoMapper is enough smart to call this method(correct Pattern Get_PropertyName) to set a value.
-    //     return DateOfBirth.CalculateAge();
-    // }
+    public List<UserLike> LikedByUsers { get; set; } // who has liked the current user
+
+    public List<UserLike> LikedUsers { get; set; } // who the current user liked
 }
