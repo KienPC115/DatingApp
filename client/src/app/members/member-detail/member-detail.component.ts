@@ -1,11 +1,14 @@
+import { MessageService } from './../../_services/message.service';
 import { MembersService } from 'src/app/_services/members.service';
 import { Member } from './../../_models/member';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { TabsModule } from 'ngx-bootstrap/tabs';
+import { TabDirective, TabsModule, TabsetComponent } from 'ngx-bootstrap/tabs';
 import { GalleryItem, GalleryModule, ImageItem } from 'ng-gallery';
 import { TimeagoModule } from 'ngx-timeago';
+import { MemberMessagesComponent } from '../member-messages/member-messages.component';
+import { Message } from 'src/app/_models/message';
 
 // npm i ng-gallery @angular/cdk -> to use galleryModule
 // -> integrate 3rd party component into application
@@ -14,28 +17,52 @@ import { TimeagoModule } from 'ngx-timeago';
   standalone: true, // be come a standalone component -> it can flexibility in order to use the module they want -> ex: here we use the GalleryModule to manage to the photos of each user
   templateUrl: './member-detail.component.html',
   styleUrls: ['./member-detail.component.css'],
-  imports: [CommonModule, TabsModule, GalleryModule, TimeagoModule]
+  imports: [CommonModule, TabsModule, GalleryModule, TimeagoModule, MemberMessagesComponent]
 })
 export class MemberDetailComponent implements OnInit{
-
-  member: Member | undefined;
+  @ViewChild('memberTabs', {static: true}) memberTabs?: TabsetComponent;
+  member: Member = {} as Member;
   images: GalleryItem[]= [];
+  activeTab?: TabDirective;
+  messages: Message[] = [];
 
-  constructor(private membersService: MembersService, private route:ActivatedRoute) {}
+  constructor(private membersService: MembersService, private route:ActivatedRoute, private messageService: MessageService) {}
   
   ngOnInit(): void {
-    this.loadMember();
-  }
+    // when our component is initialized and ngOnInit happens before our view is initialized
+    // here this will get the data by resolver - member-detailed.resolver
+    this.route.data.subscribe({
+      next: data => this.member = data['member']
+    });
 
-  loadMember() {
-    const username = this.route.snapshot.paramMap.get('username');
-    if(!username) return;
-    this.membersService.getMember(username).subscribe({
-      next: member => {
-        this.member = member,
-        this.getImages()
+    this.route.queryParams.subscribe({
+      next: params => {
+        params['tab'] && this.selectTab(params['tab'])
       }
     })
+
+    this.getImages();
+  }
+
+  selectTab(heading: string) {
+    if(this.memberTabs)  {
+      this.memberTabs.tabs.find(x => x.heading === heading)!.active = true;
+    }
+  }
+
+  onTabActivated(data: TabDirective) {
+    this.activeTab = data;
+    if(this.activeTab.heading === "Messages") {
+      this.loadMessages();
+    }
+  }
+
+  loadMessages() {
+    if(this.member) {
+      this.messageService.getMessageThread(this.member.userName).subscribe({
+        next: messages => this.messages = messages
+      });
+    }
   }
 
   getImages() {

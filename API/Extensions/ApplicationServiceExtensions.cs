@@ -33,6 +33,8 @@ public static class ApplicationServiceExtensions
         services.AddScoped<LogUserActivity>();    
         // add ILikesRepository into IServiceCollection
         services.AddScoped<ILikesRepository, LikesRepository>();
+        // add IMessageRepository into IServiceCollection
+        services.AddScoped<IMessageRepository, MessageRepository>();
 
         return services;
     }

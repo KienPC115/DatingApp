@@ -39,4 +39,8 @@ public class AppUser
     public List<UserLike> LikedByUsers { get; set; } // who has liked the current user
 
     public List<UserLike> LikedUsers { get; set; } // who the current user liked
+
+    public List<Message> MessagesSent { get; set; } // represent the message which the current user sent for the other user
+
+    public List<Message> MessagesReceived { get; set; } // represent the message which the current user have been received from the other user
 }
