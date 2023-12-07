@@ -3,8 +3,10 @@
 // dotnet ef migrations add InitialCreate -o Data/Migrations -> to create a first migration
 
 using API.Data;
+using API.Entities;
 using API.Extentions;
 using API.Middleware;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -45,9 +47,11 @@ var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<DataContext>();
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<AppRole>>();
     // apply any pending migrations (pending mode) for the context to db, will create db if it does not exist.
     await context.Database.MigrateAsync();
-    await Seed.SeedUsers(context);
+    await Seed.SeedUsers(userManager, roleManager);
 }
 catch (Exception ex)
 {

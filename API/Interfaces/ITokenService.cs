@@ -6,5 +6,5 @@ public interface ITokenService
 {
     // We use this service to help the application create a token.
     // add package System.IdentityModel.Tokens.Jwt on the Nuget.
-    string CreateToken(AppUser user);
+    Task<string> CreateToken(AppUser user);
 }

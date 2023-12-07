@@ -45,6 +45,10 @@ export class AccountService {
   }
 
   setCurrentUser(user : User) {
+    user.roles = [];
+    const roles = this.getDecodedToken(user.token).role;
+    // check roles is array or not, because the roles of user can be more than one.
+    Array.isArray(roles) ? user.roles = roles : user.roles.push(roles);
     // to store inside local storage
     localStorage.setItem('user', JSON.stringify(user)) // we should have access to that anywhere from our application
     this.currentUserSource.next(user);  // what its next value is and pass in that user
@@ -53,5 +57,10 @@ export class AccountService {
   logout() {
     localStorage.removeItem('user');
     this.currentUserSource.next(null); // set it to null if logout
+  }
+
+  getDecodedToken(token: string) {
+    // parse the middle part of token - this contain the claims/roles of the user
+    return JSON.parse(atob(token.split('.')[1]))
   }
 }

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using API.Entities;
 using API.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API.Services;
@@ -11,15 +12,17 @@ public class TokenService : ITokenService
 {
     // we will store the super secret key in Configuration => will be injected by constructor
     private readonly SymmetricSecurityKey _key;
+    private readonly UserManager<AppUser> _userManager;
 
     // Because the configuration is the Implicit Object in the webapplication, so it will auto inject it to this constructor
     // => so that why dont need to add it to ServiceCollection
-    public TokenService(IConfiguration config)
+    public TokenService(IConfiguration config, UserManager<AppUser> userManager)
     {
         _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
+        _userManager = userManager;
     }
 
-    public string CreateToken(AppUser user)
+    public async Task<string> CreateToken(AppUser user)
     {
         //setup claim - đặc trưng của người dùng
         var claims = new List<Claim>
@@ -29,6 +32,11 @@ public class TokenService : ITokenService
             new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
             // roles
         };
+
+        // userManager can help us to get Roles of the user with following method
+        var roles = await _userManager.GetRolesAsync(user);
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
     

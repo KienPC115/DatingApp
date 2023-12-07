@@ -19,15 +19,15 @@ import { Message } from 'src/app/_models/message';
   styleUrls: ['./member-detail.component.css'],
   imports: [CommonModule, TabsModule, GalleryModule, TimeagoModule, MemberMessagesComponent]
 })
-export class MemberDetailComponent implements OnInit{
-  @ViewChild('memberTabs', {static: true}) memberTabs?: TabsetComponent;
+export class MemberDetailComponent implements OnInit {
+  @ViewChild('memberTabs', { static: true }) memberTabs?: TabsetComponent;
   member: Member = {} as Member;
-  images: GalleryItem[]= [];
+  images: GalleryItem[] = [];
   activeTab?: TabDirective;
   messages: Message[] = [];
 
-  constructor(private membersService: MembersService, private route:ActivatedRoute, private messageService: MessageService) {}
-  
+  constructor(private membersService: MembersService, private route: ActivatedRoute, private messageService: MessageService) { }
+
   ngOnInit(): void {
     // when our component is initialized and ngOnInit happens before our view is initialized
     // here this will get the data by resolver - member-detailed.resolver
@@ -45,20 +45,20 @@ export class MemberDetailComponent implements OnInit{
   }
 
   selectTab(heading: string) {
-    if(this.memberTabs)  {
+    if (this.memberTabs) {
       this.memberTabs.tabs.find(x => x.heading === heading)!.active = true;
     }
   }
 
   onTabActivated(data: TabDirective) {
     this.activeTab = data;
-    if(this.activeTab.heading === "Messages") {
+    if (this.activeTab.heading === "Messages") {
       this.loadMessages();
     }
   }
 
   loadMessages() {
-    if(this.member) {
+    if (this.member) {
       this.messageService.getMessageThread(this.member.userName).subscribe({
         next: messages => this.messages = messages
       });
@@ -66,9 +66,9 @@ export class MemberDetailComponent implements OnInit{
   }
 
   getImages() {
-    if(!this.member) return;
-    for(const photo of this.member?.photos) {
-      this.images.push(new ImageItem({src: photo.url, thumb: photo.url}));
+    if (!this.member) return;
+    for (const photo of this.member?.photos) {
+      this.images.push(new ImageItem({ src: photo.url, thumb: photo.url }));
     }
   }
 
