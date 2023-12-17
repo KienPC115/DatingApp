@@ -22,6 +22,10 @@ public class DataContext : IdentityDbContext<AppUser, AppRole, int,
 
     public DbSet<Message> Messages { get; set; }
 
+    public DbSet<Group> Groups { get; set; }
+
+    public DbSet<Connection> Connections { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -62,5 +66,10 @@ public class DataContext : IdentityDbContext<AppUser, AppRole, int,
             .HasOne(u => u.Sender)
             .WithMany(m => m.MessagesSent)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Group>()
+            .HasMany(g => g.Connections)
+            .WithOne(c => c.Group)
+            .HasForeignKey(c => c.GroupName);
     }
 }

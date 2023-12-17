@@ -2,6 +2,7 @@ using API.Data;
 using API.Helper;
 using API.Interfaces;
 using API.Services;
+using API.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Extentions;
@@ -35,6 +36,11 @@ public static class ApplicationServiceExtensions
         services.AddScoped<ILikesRepository, LikesRepository>();
         // add IMessageRepository into IServiceCollection
         services.AddScoped<IMessageRepository, MessageRepository>();
+        // add SignalR into our application
+        services.AddSignalR();
+        // we want this dictionary to be available application wide for every user that connects to our service.
+        // we do not want this to be destroyed once an HTTP request has been completed
+        services.AddSingleton<PresenceTracker>();
 
         return services;
     }

@@ -2,5 +2,6 @@
 // store some main variables which use entire our app
 export const environment = {
     production: false, // set up the mode
-    apiUrl: 'https://localhost:5001/api/'
+    apiUrl: 'https://localhost:5001/api/',
+    hubUrl: 'https://localhost:5001/hubs/'
 };

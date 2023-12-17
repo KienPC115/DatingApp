@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, map } from 'rxjs';
 import { User } from '../_models/user';
 import { environment } from 'src/environments/environment';
+import { PresenceService } from './presence.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class AccountService {
   // used outside of the service - with '$' is a convention to signify this is unobservable
   currentUser$ = this.currentUserSource.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private presenceService: PresenceService) { }
 
   login(model: any) {
     // give httpclient a hint about what we return in a response
@@ -52,11 +53,14 @@ export class AccountService {
     // to store inside local storage
     localStorage.setItem('user', JSON.stringify(user)) // we should have access to that anywhere from our application
     this.currentUserSource.next(user);  // what its next value is and pass in that user
+    // khi đăng nhập thì ng đó đã kết nối với Hub.
+    this.presenceService.createHubConnection(user);
   }
 
   logout() {
     localStorage.removeItem('user');
     this.currentUserSource.next(null); // set it to null if logout
+    this.presenceService.stopHubConnection();
   }
 
   getDecodedToken(token: string) {

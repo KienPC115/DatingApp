@@ -23,6 +23,10 @@ public class AutoMapperProfiles : Profile
         CreateMap<Message,MessageDto>()
             .ForMember(d => d.SenderPhotoUrl, o => o.MapFrom(src => src.Sender.Photos.FirstOrDefault(x => x.IsMain).Url))
             .ForMember(d => d.RecipientPhotoUrl, o => o.MapFrom(src => src.Recipient.Photos.FirstOrDefault(x => x.IsMain).Url));
+        // Dealing with UTC date formats
+        // because DateTime has many kind of time -> now we want to get UTC.
+        CreateMap<DateTime, DateTime>().ConvertUsing(d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
+        CreateMap<DateTime?, DateTime?>().ConvertUsing(d => d.HasValue ? DateTime.SpecifyKind(d.Value, DateTimeKind.Utc) : null);
     }
 
 
