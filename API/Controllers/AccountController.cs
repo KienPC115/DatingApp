@@ -16,16 +16,13 @@ namespace API.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
 
-        private readonly IUserRepository _userRepository;
-
         private readonly ITokenService _tokenService;
 
         private readonly IMapper _mapper;
 
-        public AccountController(UserManager<AppUser> userManager, IUserRepository userRepository, ITokenService tokenService, IMapper mapper)
+        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, IMapper mapper)
         {
             _userManager = userManager;
-            _userRepository = userRepository;
             _tokenService = tokenService;
             _mapper = mapper;
         }
@@ -53,7 +50,7 @@ namespace API.Controllers
 
             var roleResult = await _userManager.AddToRoleAsync(user, "Member");
 
-            if(!roleResult.Succeeded) return BadRequest(roleResult.Errors);
+            if (!roleResult.Succeeded) return BadRequest(roleResult.Errors);
 
             return new UserDto()
             {
@@ -91,7 +88,7 @@ namespace API.Controllers
             //     if (computedHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid password");
             // }
 
-            if(!result) return Unauthorized("Invalid password");
+            if (!result) return Unauthorized("Invalid password");
 
             return new UserDto()
             {
@@ -102,7 +99,6 @@ namespace API.Controllers
                 Gender = user.Gender
             };
         }
-
 
         private async Task<bool> UserExist(string username)
         {

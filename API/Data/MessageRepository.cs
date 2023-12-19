@@ -45,7 +45,6 @@ public class MessageRepository : IMessageRepository
             .Include(x => x.Connections)
             .Where(x => x.Connections.Any(c => c.ConnectionId == connectionId))
             .FirstOrDefaultAsync();
-            
     }
 
     public async Task<Message> GetMessage(int id)
@@ -80,9 +79,9 @@ public class MessageRepository : IMessageRepository
 
     public async Task<IEnumerable<MessageDto>> GetMessageThread(string currentUserName, string recipientUserName)
     {
-        var messages = await _context.Messages
-            .Include(u => u.Sender).ThenInclude(p => p.Photos) // không dùng Projection<> method thì phải include các đối tượng để map.
-            .Include(u => u.Recipient).ThenInclude(p => p.Photos) // Projection<> help we fetch the neccessary data to map
+        // lấy tin nhắn của 2 thằng gửi cho nhau
+        // Projection<> help we fetch the neccessary data to map
+        var query = _context.Messages
             .Where(
                 m => m.RecipientUsername == currentUserName && m.RecipientDeleted == false &&
                 m.SenderUsername == recipientUserName || 
@@ -90,31 +89,25 @@ public class MessageRepository : IMessageRepository
                 m.SenderUsername == currentUserName
             )
             .OrderBy(m => m.MessageSent)
-            .ToListAsync(); // lấy tin nhắn của 2 thằng gửi cho nhau
+            .AsQueryable(); 
 
         // DateRead is the time when the RecipientUser read the messages from others
         // khi get 2 thread message of 2 people that mean the logged-user read the message of sender -> logged-user is recipient
-        var unreadMessages = messages.Where(m => m.DateRead == null && m.RecipientUsername == currentUserName).ToList();
+        var unreadMessages = query.Where(m => m.DateRead == null && m.RecipientUsername == currentUserName).ToList();
     
         if(unreadMessages.Any()) {
             foreach (var message in unreadMessages)
             {
                 message.DateRead = DateTime.UtcNow;
             }
-
-            await _context.SaveChangesAsync();
+            // await _context.SaveChangesAsync(); -> using UnitOfWork
         }
 
-        return _mapper.Map<IEnumerable<MessageDto>>(messages);
+        return await query.ProjectTo<MessageDto>(_mapper.ConfigurationProvider).ToListAsync();
     }
 
     public void RemoveConnection(Connection connection)
     {
         _context.Connections.Remove(connection);
-    }
-
-    public async Task<bool> SaveAllAsync()
-    {
-        return await _context.SaveChangesAsync() > 0;
     }
 }

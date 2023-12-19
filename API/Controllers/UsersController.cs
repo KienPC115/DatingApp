@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using API.DTOs;
 using API.Entities;
 using API.Extentions;
@@ -14,15 +13,14 @@ namespace API.Controllers;
 // nhưng ngược lại thì không [AllowAnonymus] at controller-level -> will ignore the [Authorize]
 public class UsersController : BaseApiController
 {
-    private readonly IUserRepository _userRepository;
-
+    private readonly IUnitOfWork _uow;
     private readonly IMapper _mapper;
     private readonly IPhotoService _photoService;
 
-    public UsersController(IUserRepository userRepository, IMapper mapper,
+    public UsersController(IUnitOfWork uow, IMapper mapper,
         IPhotoService photoService)
     {
-        _userRepository = userRepository;
+        _uow = uow;
         _mapper = mapper;
         _photoService = photoService;
     }
@@ -30,16 +28,16 @@ public class UsersController : BaseApiController
     [HttpGet]
     public async Task<ActionResult<PagedList<MemberDto>>> GetUsers([FromQuery] UserParams userParams)
     {
-        var currentUser = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
-        userParams.CurrentUsername = currentUser.UserName;
+        var gender = await _uow.UserRepository.GetUserGender(User.GetUsername());
+        userParams.CurrentUsername = User.GetUsername();
 
         if (string.IsNullOrEmpty(userParams.Gender))
         {
-            userParams.Gender = currentUser.Gender == "male" ? "female" : "male";
+            userParams.Gender = gender == "male" ? "female" : "male";
         }
 
         // get a PagedList it contain all information about pagination
-        var users = await _userRepository.GetMembersAsync(userParams);
+        var users = await _uow.UserRepository.GetMembersAsync(userParams);
 
         // set up the data in headers of response
         Response.AddPaginationHeader(new PaginationHeader(users.CurrentPage, users.PageSize, users.TotalCount, users.TotalPages));
@@ -51,7 +49,7 @@ public class UsersController : BaseApiController
     [HttpGet("{username}")] //Authentication our endpoint by the token 
     public async Task<ActionResult<MemberDto>> GetUser(string username)
     {
-        return await _userRepository.GetMemberAsync(username);
+        return await _uow.UserRepository.GetMemberAsync(username);
     }
 
     [HttpPut] // we dont need to add username in parameter root, we can get it from the token
@@ -60,7 +58,7 @@ public class UsersController : BaseApiController
         // the User of System.Security.Claims.ClaimsPrincipal
         // it contains all the claims of token from client
         var username = User.GetUsername(); // this is extension method of User claims.
-        var user = await _userRepository.GetUserByUsernameAsync(username);
+        var user = await _uow.UserRepository.GetUserByUsernameAsync(username);
 
         if (user == null) return NotFound();
 
@@ -69,7 +67,7 @@ public class UsersController : BaseApiController
         //into and overwriting the properties in that user.
         _mapper.Map(memberUpdateDto, user);
 
-        if (await _userRepository.SaveAllAsync()) return NoContent();
+        if (await _uow.Complete()) return NoContent();
 
         // if we map the properties the same with properties had stored in DB
         // EF tracker will not consider it is change and Failed to update.
@@ -86,7 +84,7 @@ public class UsersController : BaseApiController
         // 4. Server save it to DataBase via Photo Entity
 
         // Here we need get a AppUser because this func is add  the photo for AppUser.Photo and update it to DataBase.
-        var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
+        var user = await _uow.UserRepository.GetUserByUsernameAsync(User.GetUsername());
 
         if (user == null) return NotFound();
 
@@ -109,7 +107,7 @@ public class UsersController : BaseApiController
 
         // create new respone from the Server need to return a 201 created
         // should give them is the exact location of the new thing that's been created on server
-        if (await _userRepository.SaveAllAsync())
+        if (await _uow.Complete())
         {
             // Map method have 2 way: 1-Have a Dto _map.Map(entity, dto). 2-Not have a Dto _map.Map<Dto>(entity)
             // Action same with the endpoint of app
@@ -125,7 +123,7 @@ public class UsersController : BaseApiController
     [HttpPut("set-main-photo/{photoId}")]
     public async Task<ActionResult> SetMainPhoto(int photoId)
     {
-        var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
+        var user = await _uow.UserRepository.GetUserByUsernameAsync(User.GetUsername());
         if (user == null) return NotFound();
 
         var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
@@ -139,7 +137,7 @@ public class UsersController : BaseApiController
 
         photo.IsMain = true;
 
-        if (await _userRepository.SaveAllAsync()) return NoContent();
+        if (await _uow.Complete()) return NoContent();
 
         return BadRequest("Problem setting the main photo");
     }
@@ -148,7 +146,7 @@ public class UsersController : BaseApiController
     public async Task<ActionResult> DeletePhoto(int photoId)
     {
         // delete here mean delete in the database, and delete in the cloudinary server
-        var user = await _userRepository.GetUserByUsernameAsync(User.GetUsername());
+        var user = await _uow.UserRepository.GetUserByUsernameAsync(User.GetUsername());
 
         var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
 
@@ -166,7 +164,7 @@ public class UsersController : BaseApiController
 
         user.Photos.Remove(photo);
 
-        if (await _userRepository.SaveAllAsync()) return Ok();
+        if (await _uow.Complete()) return Ok();
 
         return BadRequest("Problem deleting photo");
     }

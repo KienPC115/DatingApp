@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Data;
 
-// this class can present the Database with the table, or this is the session work that we access database 
+// this class can present the Database with the table, or this is the session work that we access database -> vì nó đại diện 1 section thì khi inject nó vào 1 lớp nào đó thì nó sẽ luôn tạo 1 instance mới
 // add package Microsoft.AspNetCore.Identity.EntityFrameworkCore to EF can work with ASP.NET core Identity
 // h ta sẽ chỉ định các lớp quản lí user trong IdentityDbContext<>
 public class DataContext : IdentityDbContext<AppUser, AppRole, int, 
