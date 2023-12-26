@@ -26,6 +26,8 @@ public class DataContext : IdentityDbContext<AppUser, AppRole, int,
 
     public DbSet<Connection> Connections { get; set; }
 
+    public DbSet<Photo> Photos { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -71,5 +73,10 @@ public class DataContext : IdentityDbContext<AppUser, AppRole, int,
             .HasMany(g => g.Connections)
             .WithOne(c => c.Group)
             .HasForeignKey(c => c.GroupName);
+
+        // When we set HasQueryFilter() -> The predicate expressions passed to the HasQueryFilter calls will 
+        //now automatically be applied to any LINQ queries for those types.
+        // -> to Disabling Filter -> using the IgnoreQueryFilters().
+        builder.Entity<Photo>().HasQueryFilter(p => p.IsApproved);
     }
 }

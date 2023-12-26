@@ -58,7 +58,7 @@ public class PresenceTracker
     }
 
     // Get all the connectionId of user -> because when we want notify the message -> we should do it for all Connection
-    public static Task<List<string>> GetConnectionForUser(string username) {
+    public Task<List<string>> GetConnectionForUser(string username) {
         List<string> connectionIds;
 
         lock(OnlineUsers) {

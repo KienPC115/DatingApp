@@ -16,6 +16,8 @@ public interface IUnitOfWork
 
     ILikesRepository LikesRepository { get; }
 
+    IPhotoRepository PhotoRepository { get; }
+
     Task<bool> Complete();
 
     bool HasChanges(); // tell us if EF is tracking anything that's been changed inside its transaction

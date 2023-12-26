@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountService } from './_services/account.service';
 import { User } from './_models/user';
+import { PresenceService } from './_services/presence.service';
 
 @Component({
   selector: 'app-root',
@@ -23,15 +24,14 @@ import { User } from './_models/user';
 
 
 export class AppComponent implements OnInit {
-  
-  title = 'Dating app';
+  title = 'The Dating app';
+  users: any;
 
-  constructor(private accountService: AccountService) {}
-  
-  ngOnInit(): void {
+  constructor(private accountService: AccountService, private presence: PresenceService) {}
+
+  ngOnInit() {
     this.setCurrentUser();
   }
-
 
   setCurrentUser() {
     // here should to get user in the localStorage, because it represent the app and run first with the other component
@@ -41,6 +41,7 @@ export class AppComponent implements OnInit {
     const user : User = JSON.parse(userString);
 
     this.accountService.setCurrentUser(user);
+    this.presence.createHubConnection(user);
   }
 
 }

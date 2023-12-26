@@ -20,15 +20,23 @@ public class UserRepository : IUserRepository
         _mapper = mapper;
     }
 
-    public async Task<MemberDto> GetMemberAsync(string username)
+    public async Task<MemberDto> GetMemberAsync(string username, bool isCurrentUser)
     {
-        return await _context.Users
+        var query = _context.Users
         .Where(x => x.UserName == username)
         // AutoMapper come with variable extensions which allow us to project into something
         // Use this it help reduce query all properties, help we call some prop that neccessary and map with a given Dto
         // take care for us about Eager Loading(MemberDto has a field list of PhotoDto)
         .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)// this arguement is the config in Profile,
-        .SingleOrDefaultAsync();
+        // .SingleOrDefaultAsync();
+        .AsQueryable();
+
+        if (isCurrentUser)
+        {
+            query = query.IgnoreQueryFilters(); // -> to ignore the query be settup in DataContext and get all records.
+        }
+
+        return await query.FirstOrDefaultAsync();
     }
 
     public async Task<PagedList<MemberDto>> GetMembersAsync(UserParams userParams)
@@ -50,8 +58,8 @@ public class UserRepository : IUserRepository
         };
 
         return await PagedList<MemberDto>.CreateAsync(
-            query.AsNoTracking().ProjectTo<MemberDto>(_mapper.ConfigurationProvider), 
-            userParams.PageNumber, 
+            query.AsNoTracking().ProjectTo<MemberDto>(_mapper.ConfigurationProvider),
+            userParams.PageNumber,
             userParams.PageSize);
     }
 
@@ -60,7 +68,7 @@ public class UserRepository : IUserRepository
         // Eager Loading -> will cause the error Object Cycle -> AppUser has list of Photos, Photos has a AppUser 
         //-> so that will have a call cycle -> to solve this problem we create Dto and adding AutoMapper
         return await _context.Users
-        .Include(p => p.Photos) 
+        .Include(p => p.Photos)
         .ToListAsync();
         // return a list of user with each user have a fetched photo.
     }
@@ -70,11 +78,20 @@ public class UserRepository : IUserRepository
         return await _context.Users.FindAsync(id);
     }
 
+    public async Task<AppUser> GetUserByPhotoId(int photoId)
+    {
+        return await _context.Users
+            .Include(u => u.Photos)
+            .IgnoreQueryFilters()
+            .Where(u => u.Photos.Any(x => x.Id == photoId))
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<AppUser> GetUserByUsernameAsync(string username)
     {
         // will same problem with GetUserAsync()
         return await _context.Users
-        .Include(p => p.Photos) 
+        .Include(p => p.Photos)
         .SingleOrDefaultAsync(x => x.UserName == username);
     }
 

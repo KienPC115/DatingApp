@@ -16,7 +16,7 @@ public static class ApplicationServiceExtensions
         services.AddDbContext<DataContext>(opt =>
         {
             // configure the options for this Database
-            opt.UseSqlite(config["ConnectionString:DefaultConnection"]);
+            opt.UseNpgsql(config["ConnectionString:DefaultConnection"]);
         });
         // adding CORS support in the API, because angular can access the server.(policy builder)
         services.AddCors();

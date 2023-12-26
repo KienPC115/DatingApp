@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace API.Entities;
 
 public class Connection
@@ -19,5 +21,6 @@ public class Connection
 
     public string GroupName { get; set; }
 
+    [JsonIgnore]
     public Group Group { get; set; }
 }

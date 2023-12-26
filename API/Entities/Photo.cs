@@ -11,6 +11,8 @@ public class Photo
 
     public bool IsMain { get; set; }
 
+    public bool IsApproved { get; set; }
+
     // when we do get a image upload result back from cloudinary, this is going to give us that publicID and store it to DB
     public string PublicId { get; set; }
 

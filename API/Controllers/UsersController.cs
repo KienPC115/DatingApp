@@ -49,7 +49,8 @@ public class UsersController : BaseApiController
     [HttpGet("{username}")] //Authentication our endpoint by the token 
     public async Task<ActionResult<MemberDto>> GetUser(string username)
     {
-        return await _uow.UserRepository.GetMemberAsync(username);
+        var isCurrentUser = User.GetUsername() == username;
+        return await _uow.UserRepository.GetMemberAsync(username, isCurrentUser);
     }
 
     [HttpPut] // we dont need to add username in parameter root, we can get it from the token
@@ -97,11 +98,12 @@ public class UsersController : BaseApiController
         var photo = new Photo
         {
             Url = result.SecureUrl.AbsoluteUri,
-            PublicId = result.PublicId
+            PublicId = result.PublicId,
+            IsApproved = false
         };
 
         // because AppUser have Eagerloading with photo that why we can use this.
-        if (user.Photos.Count == 0) photo.IsMain = true;
+        // if (user.Photos.Count == 0) photo.IsMain = true;
 
         user.Photos.Add(photo);
 
@@ -132,6 +134,8 @@ public class UsersController : BaseApiController
 
         if (photo.IsMain) return BadRequest("This is already your main photo");
 
+        if(!photo.IsApproved) return BadRequest("This photo is waiting approval, you can not set it to main");
+
         var currentMain = user.Photos.FirstOrDefault(x => x.IsMain);
         if (currentMain != null) currentMain.IsMain = false;
 
@@ -146,9 +150,9 @@ public class UsersController : BaseApiController
     public async Task<ActionResult> DeletePhoto(int photoId)
     {
         // delete here mean delete in the database, and delete in the cloudinary server
-        var user = await _uow.UserRepository.GetUserByUsernameAsync(User.GetUsername());
+        // var user = await _uow.UserRepository.GetUserByUsernameAsync(User.GetUsername());
 
-        var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
+        var photo = await _uow.PhotoRepository.GetPhotoById(photoId);
 
         if (photo == null) return NotFound();
 
@@ -162,7 +166,7 @@ public class UsersController : BaseApiController
             if (result.Error != null) return BadRequest(result.Error.Message);
         }
 
-        user.Photos.Remove(photo);
+        _uow.PhotoRepository.RemovePhoto(photo);
 
         if (await _uow.Complete()) return Ok();
 

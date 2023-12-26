@@ -43,11 +43,14 @@ app.UseAuthentication(); // it should add bwt UseCors(), MapController()
 // ask the user have a valid token => Now what are you allowed to do?
 app.UseAuthorization();
 
+app.UseDefaultFiles(); // this is going to fish out the index.html from wwwroot folder
+app.UseStaticFiles(); // this is going to look for a wwwroot and serve the content
+
 app.MapControllers();
 
 app.MapHub<PresenceHub>("hubs/presence"); // giống 1 cái endpoint được định nghĩa trong our application
 app.MapHub<MessageHub>("hubs/message"); // giống 1 cái endpoint được định nghĩa trong our application
-
+app.MapFallbackToController("Index", "Fallback"); // The request will be routed to a controller endpoint that matches action, and controller.
 
 // IServiceScope -> IServiceProvider
 // give us access to all of the services that we have inside this program class
@@ -66,7 +69,8 @@ try
     // -> cause when the user was out chat box -> but the message of another still be mark as read
     // -> so that when the API restart -> we need to clear up the Connection table
     // context.Connections.RemoveRange(context.Connections); -> this way can clear up the table but if it has 10b row -> cause a problem when start or restart
-    await context.Database.ExecuteSqlRawAsync("DELETE FROM [Connections]");
+    // await context.Database.ExecuteSqlRawAsync("DELETE FROM [Connections]");
+    await Seed.ClearConnections(context);
     
     await Seed.SeedUsers(userManager, roleManager);
 }
@@ -77,3 +81,17 @@ catch (Exception ex)
 }
 
 app.Run();
+
+// DOCKER
+// this cli is create a new instance of postgres in the docker container with name, enviroment variable, port, and version
+// docker run --name postgres -e POSTGRES_PASSWORD=postgrespw -p 5432:5432 -d postgres:latest
+
+// dockerize our app
+// set up Dockerfile and .dockerignore to create new image of our application into docker container
+// using cli: docker build -t kientrung1105/datingapp . -> to create the new image
+//  docker run --rm -it -p 8080:80 kientrung1105/datingapp:latest -> to run the application by docker
+// docker push kientrung1105/datingapp:latest -> to push into docker hub repository
+
+// Fly.io
+// after we install fly, login success
+// cli: fly launch --image kientrung1105/datingapp:latest -> to lauch our into fly

@@ -9,6 +9,11 @@ namespace API.Data;
 
 public class Seed
 {
+    public static async Task ClearConnections(DataContext context) {
+        context.Connections.RemoveRange(context.Connections);
+        await context.SaveChangesAsync();
+    }
+
     // UserManager which provides us with a user manager service/ apis for managing user in a persistence store
     // RoleManager which provides us with a role manager service/ apis for managing role in a persistence store
     public static async Task SeedUsers(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager)
@@ -38,8 +43,11 @@ public class Seed
         foreach (var user in users)
         {
             // using var hmac = new HMACSHA512();
-
+            user.Photos.First().IsApproved = true;
             user.UserName = user.UserName.ToLower();
+            // postgres want to use UTC date now.
+            user.Created = DateTime.SpecifyKind(user.Created, DateTimeKind.Utc);
+            user.LastActive = DateTime.SpecifyKind(user.LastActive, DateTimeKind.Utc);
             // user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes("Pa$$w0rd"));
             // user.PasswordSalt = hmac.Key;
 

@@ -13,16 +13,18 @@ public class MessageHub : Hub
 {
     private readonly IUnitOfWork _uow;
     private readonly IHubContext<PresenceHub> _presenceHub;
+    private readonly PresenceTracker _tracker;
 
     // because when a user connects to Message Hub, we're going to want to return the message thread btw them.
     // private readonly IMessageRepository _uow.MessageRepository;
     // private readonly IUserRepository _uow.UserRepository;
     private readonly IMapper _mapper;
 
-    public MessageHub(IUnitOfWork uow, IMapper mapper, IHubContext<PresenceHub> presenceHub)
+    public MessageHub(IUnitOfWork uow, IMapper mapper, IHubContext<PresenceHub> presenceHub, PresenceTracker tracker)
     {
         _uow = uow;
         _presenceHub = presenceHub;
+        _tracker = tracker;
         _mapper = mapper;
     }
 
@@ -94,7 +96,7 @@ public class MessageHub : Hub
         else
         {
             // send the notification for user
-            var connections = await PresenceTracker.GetConnectionForUser(recipient.UserName);
+            var connections = await _tracker.GetConnectionForUser(recipient.UserName);
             if (connections != null)
             {
                 // we can access other hubs by injecting them into the hub that we're working on
